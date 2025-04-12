@@ -316,7 +316,7 @@ def start_comfyui(asyncio_loop=None):
     prompt_server = server.PromptServer(asyncio_loop)
     q = execution.PromptQueue(prompt_server)
 
-    nodes.init_extra_nodes(init_custom_nodes=not args.disable_all_custom_nodes)
+    # nodes.init_extra_nodes(init_custom_nodes=not args.disable_all_custom_nodes)
 
     prompt_server.add_routes()
     hijack_progress(prompt_server)
