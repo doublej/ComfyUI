@@ -11,6 +11,22 @@ import itertools
 import utils.extra_config
 import logging
 
+# Dummy torch class for environments without torch
+class DummyTorch:
+    def __getattr__(self, name):
+        def dummy_func(*args, **kwargs):
+            logging.info(f"[DummyTorch] Called: {name}(*{args}, **{kwargs})")
+            return self
+        return dummy_func
+
+    def __call__(self, *args, **kwargs):
+        logging.info(f"[DummyTorch] Called as function with args={args}, kwargs={kwargs}")
+        return self
+
+# Usage example:
+# torch = DummyTorch()
+# torch.anything.you.want()
+
 if __name__ == "__main__":
     #NOTE: These do not do anything on core ComfyUI which should already have no communication with the internet, they are for custom nodes.
     os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
