@@ -13,7 +13,7 @@ import utils.extra_config
 import logging
 
 # Dummy torch class for environments without torch
-class DummyTorch:
+class Dummy:
     def __getattr__(self, name):
         def dummy_func(*args, **kwargs):
             logging.info(f"[DummyTorch] Called: {name}(*{args}, **{kwargs})")
@@ -24,8 +24,9 @@ class DummyTorch:
         logging.info(f"[DummyTorch] Called as function with args={args}, kwargs={kwargs}")
         return self
 
-# Monkey-patch sys.modules so any 'import torch' gets DummyTorch
-sys.modules["torch"] = DummyTorch()
+# Monkey-patch sys.modules so any 'import torch' gets Dummy
+sys.modules["torch"] = Dummy()
+sys.modules["safetensors"] = Dummy()
 # Usage example:
 torch = sys.modules["torch"]
 # torch.anything.you.want()
