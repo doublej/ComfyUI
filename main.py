@@ -54,9 +54,17 @@ class DummyModule:
 
 # Monkey-patch sys.modules so any 'import torch' or 'import safetensors' gets DummyModule
 dummy_module = DummyModule()
-sys.modules["torch"] = dummy_module
-sys.modules["safetensors"] = dummy_module
-sys.modules["safetensors.torch"] = dummy_module
+
+def patch_dummy(module_name):
+    sys.modules[module_name] = dummy_module
+
+try:
+    import torch
+except ImportError:
+    patch_dummy("torch")
+    patch_dummy("torch.nn")
+    patch_dummy("torch.nn.functional")
+
 # Usage example:
 torch = sys.modules["torch"]
 # torch.anything.you.want()
@@ -290,8 +298,6 @@ def start_comfyui(asyncio_loop=None):
     q = execution.PromptQueue(prompt_server)
 
     nodes.init_extra_nodes(init_custom_nodes=not args.disable_all_custom_nodes)
-
-    cuda_malloc_warning()
 
     prompt_server.add_routes()
     hijack_progress(prompt_server)
