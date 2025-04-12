@@ -52,21 +52,35 @@ class DummyModule:
     def __repr__(self):
         return "<DummyModule>"
 
-# Monkey-patch sys.modules so any 'import torch' or 'import safetensors' gets DummyModule
-dummy_module = DummyModule()
+# --- Dynamic Dummy Import Hook ---
+import importlib.abc
+import importlib.util
 
-def patch_dummy(module_name):
-    sys.modules[module_name] = dummy_module
+DUMMY_MODULE_NAMES = {
+    "torch", "torch.nn", "torch.nn.functional",
+    "safetensors", "safetensors.torch", "safetensors.nn",
+    "comfy.diffusers_load", "comfy.samplersa", "comfy.sample",
+    "comfy.sd", "comfy.controlnet", "comfy.clip_vision",
+    "comfy.model_management", "comfy.taesd", "comfy.taesd.taesd"
+}
 
-try:
-    import torch
-except ImportError:
-    patch_dummy("torch")
-    patch_dummy("torch.nn")
-    patch_dummy("torch.nn.functional")
+class DummyModuleLoader(importlib.abc.Loader):
+    def create_module(self, spec):
+        return dummy_module
+    def exec_module(self, module):
+        pass
+
+class DummyModuleFinder(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path, target=None):
+        if fullname in DUMMY_MODULE_NAMES:
+            return importlib.util.spec_from_loader(fullname, DummyModuleLoader())
+        return None
+
+sys.meta_path.insert(0, DummyModuleFinder())
+# --- End Dynamic Dummy Import Hook ---
 
 # Usage example:
-torch = sys.modules["torch"]
+torch = importlib.import_module("torch")
 # torch.anything.you.want()
 
 if __name__ == "__main__":
