@@ -13,20 +13,50 @@ import utils.extra_config
 import logging
 
 # Dummy torch class for environments without torch
-class Dummy:
+class DummyModule:
     def __getattr__(self, name):
-        def dummy_func(*args, **kwargs):
-            logging.info(f"[DummyTorch] Called: {name}(*{args}, **{kwargs})")
-            return self
-        return dummy_func
-
-    def __call__(self, *args, **kwargs):
-        logging.info(f"[DummyTorch] Called as function with args={args}, kwargs={kwargs}")
+        # Always return another DummyModule for any attribute
         return self
 
-# Monkey-patch sys.modules so any 'import torch' gets Dummy
-sys.modules["torch"] = Dummy()
-sys.modules["safetensors"] = Dummy()
+    def __call__(self, *args, **kwargs):
+        logging.info(f"[DummyModule] Called as function with args={args}, kwargs={kwargs}")
+        return self
+
+    def __iter__(self):
+        # Allow iteration over DummyModule (for 'for x in torch: ...')
+        return iter([])
+
+    def __getitem__(self, key):
+        # Allow indexing (for torch['foo'] or torch[0])
+        return self
+
+    def __setitem__(self, key, value):
+        # Allow setting items
+        pass
+
+    def __bool__(self):
+        # Always True in boolean context
+        return True
+
+    def __len__(self):
+        # Length is zero
+        return 0
+
+    def __contains__(self, item):
+        # Always False for containment checks
+        return False
+
+    def __str__(self):
+        return "<DummyModule>"
+
+    def __repr__(self):
+        return "<DummyModule>"
+
+# Monkey-patch sys.modules so any 'import torch' or 'import safetensors' gets DummyModule
+dummy_module = DummyModule()
+sys.modules["torch"] = dummy_module
+sys.modules["safetensors"] = dummy_module
+sys.modules["safetensors.torch"] = dummy_module
 # Usage example:
 torch = sys.modules["torch"]
 # torch.anything.you.want()
