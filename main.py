@@ -24,7 +24,7 @@ class DummyTorch:
         return self
 
 # Usage example:
-# torch = DummyTorch()
+torch = DummyTorch()
 # torch.anything.you.want()
 
 if __name__ == "__main__":
