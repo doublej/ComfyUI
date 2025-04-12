@@ -75,8 +75,15 @@ class DummyModuleLoader(importlib.abc.Loader):
 class DummyModuleFinder(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path, target=None):
         if fullname in DUMMY_MODULE_NAMES:
+            logging.warning(f"[DUMMY IMPORT] '{fullname}' is being replaced with DummyModule. "
+                            f"To clean up: remove or replace imports of '{fullname}' in your codebase.")
             return importlib.util.spec_from_loader(fullname, DummyModuleLoader())
-        return None
+        # If the import fails for any other reason, log it for manual cleanup
+        try:
+            return None  # Let the normal import machinery try next
+        except Exception as e:
+            logging.error(f"[IMPORT FAILURE] Could not import '{fullname}': {e}")
+            return importlib.util.spec_from_loader(fullname, DummyModuleLoader())
 
 sys.meta_path.insert(0, DummyModuleFinder())
 # --- End Dynamic Dummy Import Hook ---
