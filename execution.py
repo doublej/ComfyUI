@@ -992,3 +992,4 @@ class PromptQueue:
                 return ret
             else:
                 return self.flags.copy()
+

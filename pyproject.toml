@@ -6,6 +6,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.9"
 dependencies = [
     "aider-chat>=0.80.3",
+    "einops>=0.8.1",
 ]
 
 [project.urls]

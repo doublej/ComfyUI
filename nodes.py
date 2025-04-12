@@ -20,7 +20,7 @@ import safetensors.torch
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "comfy"))
 
 import comfy.diffusers_load
-import comfy.samplers
+import comfy.samplersa
 import comfy.sample
 import comfy.sd
 import comfy.utils
@@ -203,7 +203,6 @@ class ConditioningSetAreaStrength:
     def append(self, conditioning, strength):
         c = node_helpers.conditioning_set_values(conditioning, {"strength": strength})
         return (c, )
-
 
 class ConditioningSetMask:
     @classmethod
@@ -392,7 +391,6 @@ class VAEEncodeForInpaint:
 
         return ({"samples":t, "noise_mask": (mask_erosion[:,:,:x,:y].round())}, )
 
-
 class InpaintModelConditioning:
     @classmethod
     def INPUT_TYPES(s):
@@ -444,7 +442,6 @@ class InpaintModelConditioning:
             out.append(c)
         return (out[0], out[1], out_latent)
 
-
 class SaveLatent:
     def __init__(self):
         self.output_dir = folder_paths.get_output_directory()
@@ -495,7 +492,6 @@ class SaveLatent:
         comfy.utils.save_torch_file(output, file, metadata=metadata)
         return { "ui": { "latents": results } }
 
-
 class LoadLatent:
     @classmethod
     def INPUT_TYPES(s):
@@ -530,7 +526,6 @@ class LoadLatent:
         if not folder_paths.exists_annotated_filepath(latent):
             return "Invalid latent file: {}".format(latent)
         return True
-
 
 class CheckpointLoader:
     @classmethod
@@ -595,7 +590,6 @@ class DiffusersLoader:
                     break
 
         return comfy.diffusers_load.load_diffusers(model_path, output_vae=output_vae, output_clip=output_clip, embedding_directory=folder_paths.get_folder_paths("embeddings"))
-
 
 class unCLIPCheckpointLoader:
     @classmethod
@@ -803,7 +797,6 @@ class DiffControlNetLoader:
         controlnet = comfy.controlnet.load_controlnet(controlnet_path, model)
         return (controlnet,)
 
-
 class ControlNetApply:
     @classmethod
     def INPUT_TYPES(s):
@@ -833,7 +826,6 @@ class ControlNetApply:
             n[1]['control_apply_to_uncond'] = True
             c.append(n)
         return (c, )
-
 
 class ControlNetApplyAdvanced:
     @classmethod
@@ -883,7 +875,6 @@ class ControlNetApplyAdvanced:
                 c.append(n)
             out.append(c)
         return (out[0], out[1])
-
 
 class UNETLoader:
     @classmethod
@@ -1038,7 +1029,6 @@ class StyleModelLoader:
         style_model_path = folder_paths.get_full_path_or_raise("style_models", style_model_name)
         style_model = comfy.sd.load_style_model(style_model_path)
         return (style_model,)
-
 
 class StyleModelApply:
     @classmethod
@@ -1199,7 +1189,6 @@ class EmptyLatentImage:
     def generate(self, width, height, batch_size=1):
         latent = torch.zeros([batch_size, 4, height // 8, width // 8], device=self.device)
         return ({"samples":latent}, )
-
 
 class LatentFromBatch:
     @classmethod
@@ -1763,7 +1752,6 @@ class LoadImageMask:
 
         return True
 
-
 class LoadImageOutput(LoadImage):
     @classmethod
     def INPUT_TYPES(s):
@@ -1791,7 +1779,6 @@ class LoadImageOutput(LoadImage):
     @classmethod
     def VALIDATE_INPUTS(s, image):
         return True
-
 
 class ImageScale:
     upscale_methods = ["nearest-exact", "bilinear", "area", "bicubic", "lanczos"]
@@ -1960,74 +1947,73 @@ class ImagePadForOutpaint:
 
         return (new_image, mask)
 
-
 NODE_CLASS_MAPPINGS = {
-    "KSampler": KSampler,
-    "CheckpointLoaderSimple": CheckpointLoaderSimple,
-    "CLIPTextEncode": CLIPTextEncode,
-    "CLIPSetLastLayer": CLIPSetLastLayer,
-    "VAEDecode": VAEDecode,
-    "VAEEncode": VAEEncode,
-    "VAEEncodeForInpaint": VAEEncodeForInpaint,
-    "VAELoader": VAELoader,
-    "EmptyLatentImage": EmptyLatentImage,
-    "LatentUpscale": LatentUpscale,
-    "LatentUpscaleBy": LatentUpscaleBy,
-    "LatentFromBatch": LatentFromBatch,
-    "RepeatLatentBatch": RepeatLatentBatch,
-    "SaveImage": SaveImage,
-    "PreviewImage": PreviewImage,
-    "LoadImage": LoadImage,
-    "LoadImageMask": LoadImageMask,
-    "LoadImageOutput": LoadImageOutput,
-    "ImageScale": ImageScale,
-    "ImageScaleBy": ImageScaleBy,
-    "ImageInvert": ImageInvert,
-    "ImageBatch": ImageBatch,
-    "ImagePadForOutpaint": ImagePadForOutpaint,
-    "EmptyImage": EmptyImage,
-    "ConditioningAverage": ConditioningAverage ,
-    "ConditioningCombine": ConditioningCombine,
-    "ConditioningConcat": ConditioningConcat,
-    "ConditioningSetArea": ConditioningSetArea,
-    "ConditioningSetAreaPercentage": ConditioningSetAreaPercentage,
-    "ConditioningSetAreaStrength": ConditioningSetAreaStrength,
-    "ConditioningSetMask": ConditioningSetMask,
-    "KSamplerAdvanced": KSamplerAdvanced,
-    "SetLatentNoiseMask": SetLatentNoiseMask,
-    "LatentComposite": LatentComposite,
-    "LatentBlend": LatentBlend,
-    "LatentRotate": LatentRotate,
-    "LatentFlip": LatentFlip,
-    "LatentCrop": LatentCrop,
-    "LoraLoader": LoraLoader,
-    "CLIPLoader": CLIPLoader,
-    "UNETLoader": UNETLoader,
-    "DualCLIPLoader": DualCLIPLoader,
-    "CLIPVisionEncode": CLIPVisionEncode,
-    "StyleModelApply": StyleModelApply,
-    "unCLIPConditioning": unCLIPConditioning,
-    "ControlNetApply": ControlNetApply,
-    "ControlNetApplyAdvanced": ControlNetApplyAdvanced,
-    "ControlNetLoader": ControlNetLoader,
-    "DiffControlNetLoader": DiffControlNetLoader,
-    "StyleModelLoader": StyleModelLoader,
-    "CLIPVisionLoader": CLIPVisionLoader,
-    "VAEDecodeTiled": VAEDecodeTiled,
-    "VAEEncodeTiled": VAEEncodeTiled,
-    "unCLIPCheckpointLoader": unCLIPCheckpointLoader,
-    "GLIGENLoader": GLIGENLoader,
-    "GLIGENTextBoxApply": GLIGENTextBoxApply,
-    "InpaintModelConditioning": InpaintModelConditioning,
-
-    "CheckpointLoader": CheckpointLoader,
-    "DiffusersLoader": DiffusersLoader,
-
-    "LoadLatent": LoadLatent,
-    "SaveLatent": SaveLatent,
-
-    "ConditioningZeroOut": ConditioningZeroOut,
-    "ConditioningSetTimestepRange": ConditioningSetTimestepRange,
+    # "KSampler": KSampler,
+    # "CheckpointLoaderSimple": CheckpointLoaderSimple,
+    # "CLIPTextEncode": CLIPTextEncode,
+    # "CLIPSetLastLayer": CLIPSetLastLayer,
+    # "VAEDecode": VAEDecode,
+    # "VAEEncode": VAEEncode,
+    # "VAEEncodeForInpaint": VAEEncodeForInpaint,
+    # "VAELoader": VAELoader,
+    # "EmptyLatentImage": EmptyLatentImage,
+    # "LatentUpscale": LatentUpscale,
+    # "LatentUpscaleBy": LatentUpscaleBy,
+    # "LatentFromBatch": LatentFromBatch,
+    # "RepeatLatentBatch": RepeatLatentBatch,
+    # "SaveImage": SaveImage,
+    # "PreviewImage": PreviewImage,
+    # "LoadImage": LoadImage,
+    # "LoadImageMask": LoadImageMask,
+    # "LoadImageOutput": LoadImageOutput,
+    # "ImageScale": ImageScale,
+    # "ImageScaleBy": ImageScaleBy,
+    # "ImageInvert": ImageInvert,
+    # "ImageBatch": ImageBatch,
+    # "ImagePadForOutpaint": ImagePadForOutpaint,
+    # "EmptyImage": EmptyImage,
+    # "ConditioningAverage": ConditioningAverage ,
+    # "ConditioningCombine": ConditioningCombine,
+    # "ConditioningConcat": ConditioningConcat,
+    # "ConditioningSetArea": ConditioningSetArea,
+    # "ConditioningSetAreaPercentage": ConditioningSetAreaPercentage,
+    # "ConditioningSetAreaStrength": ConditioningSetAreaStrength,
+    # "ConditioningSetMask": ConditioningSetMask,
+    # "KSamplerAdvanced": KSamplerAdvanced,
+    # "SetLatentNoiseMask": SetLatentNoiseMask,
+    # "LatentComposite": LatentComposite,
+    # "LatentBlend": LatentBlend,
+    # "LatentRotate": LatentRotate,
+    # "LatentFlip": LatentFlip,
+    # "LatentCrop": LatentCrop,
+    # "LoraLoader": LoraLoader,
+    # "CLIPLoader": CLIPLoader,
+    # "UNETLoader": UNETLoader,
+    # "DualCLIPLoader": DualCLIPLoader,
+    # "CLIPVisionEncode": CLIPVisionEncode,
+    # "StyleModelApply": StyleModelApply,
+    # "unCLIPConditioning": unCLIPConditioning,
+    # "ControlNetApply": ControlNetApply,
+    # "ControlNetApplyAdvanced": ControlNetApplyAdvanced,
+    # "ControlNetLoader": ControlNetLoader,
+    # "DiffControlNetLoader": DiffControlNetLoader,
+    # "StyleModelLoader": StyleModelLoader,
+    # "CLIPVisionLoader": CLIPVisionLoader,
+    # "VAEDecodeTiled": VAEDecodeTiled,
+    # "VAEEncodeTiled": VAEEncodeTiled,
+    # "unCLIPCheckpointLoader": unCLIPCheckpointLoader,
+    # "GLIGENLoader": GLIGENLoader,
+    # "GLIGENTextBoxApply": GLIGENTextBoxApply,
+    # "InpaintModelConditioning": InpaintModelConditioning,
+    #
+    # "CheckpointLoader": CheckpointLoader,
+    # "DiffusersLoader": DiffusersLoader,
+    #
+    # "LoadLatent": LoadLatent,
+    # "SaveLatent": SaveLatent,
+    #
+    # "ConditioningZeroOut": ConditioningZeroOut,
+    # "ConditioningSetTimestepRange": ConditioningSetTimestepRange,
     "LoraLoaderModelOnly": LoraLoaderModelOnly,
 }
 
@@ -2103,7 +2089,6 @@ EXTENSION_WEB_DIRS = {}
 # Dictionary of successfully loaded module names and associated directories.
 LOADED_MODULE_DIRS = {}
 
-
 def get_module_name(module_path: str) -> str:
     """
     Returns the module name based on the given module path.
@@ -2124,7 +2109,6 @@ def get_module_name(module_path: str) -> str:
     if os.path.isfile(module_path):
         base_path = os.path.splitext(base_path)[0]
     return base_path
-
 
 def load_custom_node(module_path: str, ignore=set(), module_parent="custom_nodes") -> bool:
     module_name = os.path.basename(module_path)
@@ -2275,7 +2259,6 @@ def init_builtin_extra_nodes():
             import_failed.append(node_file)
 
     return import_failed
-
 
 def init_extra_nodes(init_custom_nodes=True):
     import_failed = init_builtin_extra_nodes()
