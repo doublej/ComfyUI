@@ -52,6 +52,8 @@ class DummyModule:
     def __repr__(self):
         return "<DummyModule>"
 
+dummy_module = DummyModule()
+
 # --- Dynamic Dummy Import Hook ---
 import importlib.abc
 import importlib.util
@@ -78,10 +80,6 @@ class DummyModuleFinder(importlib.abc.MetaPathFinder):
 
 sys.meta_path.insert(0, DummyModuleFinder())
 # --- End Dynamic Dummy Import Hook ---
-
-# Usage example:
-torch = importlib.import_module("torch")
-# torch.anything.you.want()
 
 if __name__ == "__main__":
     #NOTE: These do not do anything on core ComfyUI which should already have no communication with the internet, they are for custom nodes.
