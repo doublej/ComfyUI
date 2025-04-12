@@ -4,6 +4,9 @@ version = "0.3.15"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
+dependencies = [
+    "aider-chat>=0.80.3",
+]
 
 [project.urls]
 homepage = "https://www.comfy.org/"
