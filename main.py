@@ -1,3 +1,4 @@
+import sys
 import comfy.options
 comfy.options.enable_args_parsing()
 
@@ -23,8 +24,10 @@ class DummyTorch:
         logging.info(f"[DummyTorch] Called as function with args={args}, kwargs={kwargs}")
         return self
 
+# Monkey-patch sys.modules so any 'import torch' gets DummyTorch
+sys.modules["torch"] = DummyTorch()
 # Usage example:
-torch = DummyTorch()
+torch = sys.modules["torch"]
 # torch.anything.you.want()
 
 if __name__ == "__main__":
